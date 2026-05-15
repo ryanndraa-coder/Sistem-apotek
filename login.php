@@ -58,12 +58,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Login Apotek</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login Sistem Apotek</title>
+
+    <link rel="stylesheet" href="/assets/css/style.css">
+
 </head>
-<body>
 <body>
 
 <div class="login-wrap">
@@ -78,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <?php if($error): ?>
             <div class="alert error">
-                <?= $error ?>
+                <?= htmlspecialchars($error) ?>
             </div>
         <?php endif; ?>
 
@@ -100,16 +105,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         </form>
 
-        <div class="demo">
-            <b>Demo Login</b>
-            admin@apotek.com <br>
-            password123
-        </div>
+        <p style="text-align:center; margin-top:15px;">
+
+            Belum punya akun?
+
+            <a href="register.php" class="link">
+                Daftar akun
+            </a>
+
+        </p>
 
     </div>
 
 </div>
 
-</body>
 </body>
 </html>

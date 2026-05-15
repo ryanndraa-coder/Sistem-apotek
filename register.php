@@ -1,91 +1,185 @@
-<?php 
-require_once __DIR__ . '/config/database.php'; 
-require_once __DIR__ . '/includes/auth.php'; 
+<?php
 
-$error=''; 
-$success=''; 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-if ($_SERVER['REQUEST_METHOD']==='POST') { 
-    $nama = trim($_POST['nama']); 
-    $email= trim($_POST['email']); 
-    $pass = password_hash($_POST['password'], PASSWORD_BCRYPT); 
-    $telp = trim($_POST['no_telp']);
-    // Mengambil role dari input form
-    $role = $_POST['role']; 
+require_once __DIR__ . '/config/database.php';
 
-    $check= $conn->prepare("SELECT id_user FROM user WHERE email=?"); 
-    $check->bind_param('s',$email); 
-    $check->execute(); 
+$error = '';
+$success = '';
 
-    if ($check->get_result()->num_rows>0) { 
-        $error='Email sudah terdaftar'; 
-    } else { 
-        $conn->begin_transaction(); 
-        try { 
-            // Query INSERT diubah agar 'role' bersifat dinamis sesuai pilihan user
-            $s=$conn->prepare("INSERT INTO user(nama, email, password, role) VALUES(?, ?, ?, ?)"); 
-            $s->bind_param('ssss', $nama, $email, $pass, $role); 
-            $s->execute(); 
-            
-            $id=$conn->insert_id; 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-            // Logika tambahan: jika role adalah pelanggan, masukkan ke tabel pelanggan
-            if ($role === 'pelanggan') {
-                $conn->query("INSERT INTO pelanggan(id_user) VALUES($id)"); 
-                if ($telp) { 
-                    $t=$conn->prepare("INSERT INTO pelanggan_no_telp(no_telp, id_user_pelanggan) VALUES(?, ?)"); 
-                    $t->bind_param('si', $telp, $id); 
-                    $t->execute(); 
-                }
+    $nama     = trim($_POST['nama']);
+    $email    = trim($_POST['email']);
+    $password = $_POST['password'];
+    $no_telp  = trim($_POST['no_telp']);
+
+    $role = 'pelanggan';
+
+    // cek email
+    $check = $conn->prepare("SELECT id_user FROM user WHERE email=?");
+    $check->bind_param("s", $email);
+    $check->execute();
+
+    $result = $check->get_result();
+
+    if ($result->num_rows > 0) {
+
+        $error = "Email sudah terdaftar!";
+
+    } else {
+
+        $hashPassword = password_hash($password, PASSWORD_BCRYPT);
+
+        $conn->begin_transaction();
+
+        try {
+
+            // insert user
+            $stmt = $conn->prepare("
+                INSERT INTO user(nama, email, password, role)
+                VALUES(?, ?, ?, ?)
+            ");
+
+            $stmt->bind_param(
+                "ssss",
+                $nama,
+                $email,
+                $hashPassword,
+                $role
+            );
+
+            $stmt->execute();
+
+            $id_user = $conn->insert_id;
+
+            // insert pelanggan
+            $pelanggan = $conn->prepare("
+                INSERT INTO pelanggan(id_user)
+                VALUES(?)
+            ");
+
+            $pelanggan->bind_param("i", $id_user);
+            $pelanggan->execute();
+
+            // insert no telp jika ada
+            if (!empty($no_telp)) {
+
+                $telp = $conn->prepare("
+                    INSERT INTO pelanggan_no_telp(no_telp, id_user_pelanggan)
+                    VALUES(?, ?)
+                ");
+
+                $telp->bind_param("si", $no_telp, $id_user);
+                $telp->execute();
             }
 
-            $conn->commit(); 
-            $success='Pendaftaran berhasil sebagai ' . ucfirst($role) . '! Silakan login.'; 
-        } catch(Exception $e){ 
-            $conn->rollback(); 
-            $error='Gagal daftar: '.$e->getMessage(); 
-        } 
-    } 
-} 
-?> 
+            $conn->commit();
+
+            $success = "Pendaftaran berhasil! Silakan login.";
+
+        } catch (Exception $e) {
+
+            $conn->rollback();
+
+            $error = "Pendaftaran gagal!";
+        }
+    }
+}
+?>
 
 <!DOCTYPE html>
 <html lang="id">
 <head>
+
     <meta charset="UTF-8">
-    <title>Daftar Akun</title> 
-    <link rel="stylesheet" href="assets/css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Daftar Akun</title>
+
+    <link rel="stylesheet" href="/assets/css/style.css">
+
 </head>
-<body> 
+<body>
+
 <div class="login-wrap">
-    <div class="login-card"> 
+
+    <div class="login-card">
+
         <h1>Daftar Akun</h1>
-        <p class="sub">Pilih peran dan buat akun baru</p> 
 
-        <?php if($error):?><div class="alert error"><?=htmlspecialchars($error)?></div><?php endif;?> 
-        <?php if($success):?><div class="alert success"><?=$success?></div><?php endif;?> 
+        <p class="sub">
+            Buat akun pelanggan baru
+        </p>
 
-        <form method="post" class="form-stack"> 
-            <div><label>Nama</label><input name="nama" required></div> 
-            <div><label>Email</label><input type="email" name="email" required></div> 
-            <div><label>Password</label><input type="password" name="password" required minlength="6"></div> 
-            
-            <!-- Tambahan pilihan Role -->
+        <?php if($error): ?>
+            <div class="alert error">
+                <?= htmlspecialchars($error) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if($success): ?>
+            <div class="alert success">
+                <?= htmlspecialchars($success) ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" class="form-stack">
+
             <div>
-                <label>Daftar Sebagai</label>
-                <select name="role" required style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
-                    <option value="pelanggan">Pelanggan</option>
-                    <option value="apoteker">Apoteker</option>
-                    <option value="admin">Admin</option>
-                </select>
+                <label>Nama Lengkap</label>
+                <input type="text" name="nama" required>
             </div>
 
-            <div><label>No. Telp (Khusus Pelanggan)</label><input name="no_telp" placeholder="08xxx"></div> 
-            
-            <button class="btn">Daftar</button> 
-        </form> 
-        <p style="text-align:center;margin-top:14px;font-size:.9rem">Sudah punya akun? <a class="link" href="login.php">Login</a></p> 
+            <div>
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
+
+            <div>
+                <label>Password</label>
+                <input
+                    type="password"
+                    name="password"
+                    required
+                    minlength="6"
+                >
+            </div>
+
+            <div>
+                <label>No. Telepon</label>
+                <input
+                    type="text"
+                    name="no_telp"
+                    placeholder="08xxxxxxxxxx"
+                >
+            </div>
+
+            <div>
+                <label>Role</label>
+                <input type="text" value="Pelanggan" disabled>
+            </div>
+
+            <button type="submit" class="btn">
+                Daftar
+            </button>
+
+        </form>
+
+        <p style="text-align:center; margin-top:15px;">
+
+            Sudah punya akun?
+
+            <a href="login.php" class="link">
+                Login
+            </a>
+
+        </p>
+
     </div>
+
 </div>
+
 </body>
 </html>
