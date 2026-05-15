@@ -1,4 +1,7 @@
+<!-- pelanggan/profil.php -->
+
 <?php
+
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/auth.php';
 
@@ -10,24 +13,35 @@ $pid = $_SESSION['id_user'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // TAMBAH NOMOR TELEPON
+    // tambah no telp
     if (isset($_POST['add_telp'])) {
 
         $t = trim($_POST['no_telp']);
 
         $s = $conn->prepare("
             INSERT INTO pelanggan_no_telp
-            (no_telp, id_user_pelanggan)
+            (
+                no_telp,
+                id_user_pelanggan
+            )
             VALUES (?, ?)
         ");
 
-        $s->bind_param('si', $t, $pid);
+        $s->bind_param(
+            'si',
+            $t,
+            $pid
+        );
+
         $s->execute();
 
-        flash('success', 'Nomor telepon berhasil ditambahkan');
+        flash(
+            'success',
+            'Nomor telepon berhasil ditambahkan'
+        );
     }
 
-    // HAPUS NOMOR TELEPON
+    // hapus no telp
     elseif (isset($_POST['del_telp'])) {
 
         $notelp = $_POST['del_telp'];
@@ -38,13 +52,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             AND id_user_pelanggan = ?
         ");
 
-        $s->bind_param('si', $notelp, $pid);
+        $s->bind_param(
+            'si',
+            $notelp,
+            $pid
+        );
+
         $s->execute();
 
-        flash('success', 'Nomor telepon berhasil dihapus');
+        flash(
+            'success',
+            'Nomor telepon berhasil dihapus'
+        );
     }
 
-    // UPDATE PROFIL
+    // update profil
     else {
 
         $n = trim($_POST['nama']);
@@ -52,23 +74,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $s = $conn->prepare("
             UPDATE user
-            SET nama = ?, email = ?
+            SET nama = ?,
+                email = ?
             WHERE id_user = ?
         ");
 
-        $s->bind_param('ssi', $n, $e, $pid);
+        $s->bind_param(
+            'ssi',
+            $n,
+            $e,
+            $pid
+        );
+
         $s->execute();
 
         $_SESSION['nama'] = $n;
 
-        flash('success', 'Profil berhasil diupdate');
+        flash(
+            'success',
+            'Profil berhasil diupdate'
+        );
     }
 
     header('Location: profil.php');
     exit;
 }
 
-// AMBIL DATA USER
 $u = $conn->query("
     SELECT *
     FROM user
@@ -78,7 +109,47 @@ $u = $conn->query("
 include __DIR__ . '/../includes/header.php';
 ?>
 
-<h1>Profil Saya</h1>
+<h1>👤 Profil Saya</h1>
+
+<p
+    style="
+        margin-bottom:20px;
+        color:#64748b;
+    "
+>
+    Kelola data akun dan nomor telepon Anda
+</p>
+
+<div class="stats">
+
+    <div class="stat">
+
+        <div class="label">
+            Role
+        </div>
+
+        <div class="value">
+            <?= ucfirst($u['role']) ?>
+        </div>
+
+    </div>
+
+    <div class="stat">
+
+        <div class="label">
+            Email
+        </div>
+
+        <div
+            class="value"
+            style="font-size:1rem"
+        >
+            <?= htmlspecialchars($u['email']) ?>
+        </div>
+
+    </div>
+
+</div>
 
 <div class="card">
 
@@ -87,6 +158,7 @@ include __DIR__ . '/../includes/header.php';
     <form method="post" class="form-stack">
 
         <div>
+
             <label>Nama</label>
 
             <input
@@ -95,9 +167,11 @@ include __DIR__ . '/../includes/header.php';
                 value="<?= htmlspecialchars($u['nama']) ?>"
                 required
             >
+
         </div>
 
         <div>
+
             <label>Email</label>
 
             <input
@@ -106,12 +180,15 @@ include __DIR__ . '/../includes/header.php';
                 value="<?= htmlspecialchars($u['email']) ?>"
                 required
             >
+
         </div>
 
         <div>
+
             <button class="btn">
                 Update Profil
             </button>
+
         </div>
 
     </form>
@@ -120,15 +197,19 @@ include __DIR__ . '/../includes/header.php';
 
 <div class="card">
 
-    <h2>Nomor Telepon</h2>
+    <h2>📱 Nomor Telepon</h2>
 
     <table>
 
         <thead>
+
             <tr>
+
                 <th>No. Telepon</th>
                 <th>Aksi</th>
+
             </tr>
+
         </thead>
 
         <tbody>
@@ -141,34 +222,49 @@ include __DIR__ . '/../includes/header.php';
             WHERE id_user_pelanggan = $pid
         ");
 
-        while($x = $r->fetch_assoc()):
+        if($r->num_rows == 0):
         ?>
 
-            <tr>
+        <tr>
 
-                <td>
-                    <?= htmlspecialchars($x['no_telp']) ?>
-                </td>
+            <td
+                colspan="2"
+                style="text-align:center"
+            >
+                Belum ada nomor telepon
+            </td>
 
-                <td>
+        </tr>
 
-                    <form method="post">
+        <?php endif; ?>
 
-                        <button
-                            type="submit"
-                            class="btn btn-danger btn-sm"
-                            name="del_telp"
-                            value="<?= $x['no_telp'] ?>"
-                            onclick="return confirm('Hapus nomor telepon ini?')"
-                        >
-                            Hapus
-                        </button>
+        <?php while($x = $r->fetch_assoc()): ?>
 
-                    </form>
+        <tr>
 
-                </td>
+            <td>
+                <?= htmlspecialchars($x['no_telp']) ?>
+            </td>
 
-            </tr>
+            <td>
+
+                <form method="post">
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger btn-sm"
+                        name="del_telp"
+                        value="<?= $x['no_telp'] ?>"
+                        onclick="return confirm('Hapus nomor telepon ini?')"
+                    >
+                        Hapus
+                    </button>
+
+                </form>
+
+            </td>
+
+        </tr>
 
         <?php endwhile; ?>
 
@@ -176,7 +272,14 @@ include __DIR__ . '/../includes/header.php';
 
     </table>
 
-    <form method="post" style="display:flex;gap:8px;margin-top:14px">
+    <form
+        method="post"
+        style="
+            display:flex;
+            gap:8px;
+            margin-top:14px;
+        "
+    >
 
         <input
             type="text"
