@@ -15,10 +15,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $no_telp  = trim($_POST['no_telp']);
 
+    // role otomatis pelanggan
     $role = 'pelanggan';
 
-    // cek email
-    $check = $conn->prepare("SELECT id_user FROM user WHERE email=?");
+    // cek email sudah ada atau belum
+    $check = $conn->prepare("
+        SELECT id_user
+        FROM user
+        WHERE email=?
+    ");
+
     $check->bind_param("s", $email);
     $check->execute();
 
@@ -30,16 +36,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } else {
 
-        $hashPassword = password_hash($password, PASSWORD_BCRYPT);
+        $hashPassword = password_hash(
+            $password,
+            PASSWORD_BCRYPT
+        );
 
         $conn->begin_transaction();
 
         try {
 
-            // insert user
+            // insert ke tabel user
             $stmt = $conn->prepare("
-                INSERT INTO user(nama, email, password, role)
-                VALUES(?, ?, ?, ?)
+                INSERT INTO user
+                (nama, email, password, role)
+                VALUES (?, ?, ?, ?)
             ");
 
             $stmt->bind_param(
@@ -54,24 +64,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $id_user = $conn->insert_id;
 
-            // insert pelanggan
+            // insert ke tabel pelanggan
             $pelanggan = $conn->prepare("
                 INSERT INTO pelanggan(id_user)
                 VALUES(?)
             ");
 
-            $pelanggan->bind_param("i", $id_user);
+            $pelanggan->bind_param(
+                "i",
+                $id_user
+            );
+
             $pelanggan->execute();
 
             // insert no telp jika ada
             if (!empty($no_telp)) {
 
                 $telp = $conn->prepare("
-                    INSERT INTO pelanggan_no_telp(no_telp, id_user_pelanggan)
+                    INSERT INTO pelanggan_no_telp
+                    (no_telp, id_user_pelanggan)
                     VALUES(?, ?)
                 ");
 
-                $telp->bind_param("si", $no_telp, $id_user);
+                $telp->bind_param(
+                    "si",
+                    $no_telp,
+                    $id_user
+                );
+
                 $telp->execute();
             }
 
@@ -94,13 +114,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Daftar Akun</title>
 
-    <link rel="stylesheet" href="/assets/css/style.css">
+    <link
+        rel="stylesheet"
+        href="/assets/css/style.css"
+    >
 
 </head>
+
 <body>
 
 <div class="login-wrap">
@@ -114,64 +142,113 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </p>
 
         <?php if($error): ?>
+
             <div class="alert error">
                 <?= htmlspecialchars($error) ?>
             </div>
+
         <?php endif; ?>
 
         <?php if($success): ?>
+
             <div class="alert success">
                 <?= htmlspecialchars($success) ?>
             </div>
+
         <?php endif; ?>
 
         <form method="POST" class="form-stack">
 
             <div>
+
                 <label>Nama Lengkap</label>
-                <input type="text" name="nama" required>
+
+                <input
+                    type="text"
+                    name="nama"
+                    required
+                >
+
             </div>
 
             <div>
+
                 <label>Email</label>
-                <input type="email" name="email" required>
+
+                <input
+                    type="email"
+                    name="email"
+                    required
+                >
+
             </div>
 
             <div>
+
                 <label>Password</label>
+
                 <input
                     type="password"
                     name="password"
                     required
                     minlength="6"
                 >
+
             </div>
 
             <div>
+
                 <label>No. Telepon</label>
+
                 <input
                     type="text"
                     name="no_telp"
                     placeholder="08xxxxxxxxxx"
                 >
+
             </div>
+
+            <!-- role otomatis pelanggan -->
+            <input
+                type="hidden"
+                name="role"
+                value="pelanggan"
+            >
 
             <div>
+
                 <label>Role</label>
-                <input type="text" value="Pelanggan" disabled>
+
+                <input
+                    type="text"
+                    value="Pelanggan"
+                    disabled
+                >
+
             </div>
 
-            <button type="submit" class="btn">
+            <button
+                type="submit"
+                class="btn"
+            >
                 Daftar
             </button>
 
         </form>
 
-        <p style="text-align:center; margin-top:15px;">
+        <p
+            style="
+                text-align:center;
+                margin-top:15px;
+            "
+        >
 
             Sudah punya akun?
 
-            <a href="login.php" class="link">
+            <a
+                href="login.php"
+                class="link"
+            >
                 Login
             </a>
 

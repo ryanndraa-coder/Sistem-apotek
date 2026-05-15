@@ -1,94 +1,89 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/auth.php';
+session_start();
 
-login_required('apoteker');
-
-/* TAMBAHAN SESSION */
-if(!isset($_SESSION['id_user'])){
-
+if (!isset($_SESSION['id_user']) || $_SESSION['role'] !== 'apoteker') {
     header("Location: ../login.php");
     exit;
 }
 
-if($_SESSION['role'] !== 'apoteker'){
-
-    header("Location: ../login.php");
-    exit;
-}
-/* ================= */
-
-$pageTitle='Dashboard Apoteker';
-$id = $_SESSION['id_user'];
-
-$jk = $conn->query("SELECT COUNT(*) c FROM konsultasi 
-WHERE id_user_apoteker=$id")->fetch_assoc()['c'];
-
-$jo = $conn->query("SELECT COUNT(*) c FROM obat 
-WHERE status_obat='tersedia'")->fetch_assoc()['c'];
-
-include __DIR__ . '/../includes/header.php';
+require_once __DIR__ . '/../includes/header.php';
 ?>
 
-<h1>Dashboard Apoteker</h1>
+<h1>Dashboard Apoteker 💊</h1>
 
 <div class="stats">
 
-<div class="stat">
-    <div class="label">Konsultasi Saya</div>
-    <div class="value"><?=$jk?></div>
-</div>
+    <div class="stat">
+        <div class="label">Obat Tersedia</div>
+        <div class="value">0</div>
+    </div>
 
-<div class="stat">
-    <div class="label">Obat Tersedia</div>
-    <div class="value"><?=$jo?></div>
-</div>
+    <div class="stat">
+        <div class="label">Pesanan Hari Ini</div>
+        <div class="value">0</div>
+    </div>
+
+    <div class="stat">
+        <div class="label">Konsultasi</div>
+        <div class="value">0</div>
+    </div>
 
 </div>
 
 <div class="card">
 
-<h2>Konsultasi Terbaru</h2>
+    <div class="toolbar">
 
-<table>
+        <h2>Menu Apoteker</h2>
 
-<thead>
-<tr>
-<th>Tanggal</th>
-<th>Pelanggan</th>
-<th>Catatan</th>
-</tr>
-</thead>
+    </div>
 
-<tbody>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
 
-<?php
+        <a href="#" class="btn">
+            💊 Data Obat
+        </a>
 
-$r = $conn->query("
-SELECT k.*,u.nama 
-FROM konsultasi k 
-JOIN user u 
-ON k.id_user_pelanggan=u.id_user 
-WHERE k.id_user_apoteker=$id 
-ORDER BY k.id_konsultasi DESC 
-LIMIT 5
-");
+        <a href="#" class="btn">
+            📦 Pesanan
+        </a>
 
-while($x=$r->fetch_assoc()):
-?>
+        <a href="#" class="btn">
+            💬 Konsultasi
+        </a>
 
-<tr>
-<td><?=$x['tanggal']?></td>
-<td><?=htmlspecialchars($x['nama'])?></td>
-<td><?=htmlspecialchars($x['catatan'])?></td>
-</tr>
-
-<?php endwhile;?>
-
-</tbody>
-
-</table>
+    </div>
 
 </div>
 
-<?php include __DIR__ . '/../includes/footer.php'; ?>
+<div class="card">
+
+    <h2>Pesanan Terbaru</h2>
+
+    <table>
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Pelanggan</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <td colspan="3" style="text-align:center;">
+                    Belum ada pesanan
+                </td>
+            </tr>
+
+        </tbody>
+
+    </table>
+
+</div>
+
+<?php
+require_once __DIR__ . '/../includes/footer.php';
+?>
