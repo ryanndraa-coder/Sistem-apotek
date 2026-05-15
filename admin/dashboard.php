@@ -1,3 +1,8 @@
+# Full Tampilan Admin Sistem Apotek
+
+## admin/dashboard.php
+
+```php
 <?php
 
 session_start();
@@ -8,102 +13,61 @@ if (
     !isset($_SESSION['id_user']) ||
     $_SESSION['role'] !== 'admin'
 ) {
-
     header("Location: ../login.php");
     exit;
 }
 
-$pageTitle = "Dashboard Admin";
+$pageTitle = 'Dashboard Admin';
 
 require_once __DIR__ . '/../includes/header.php';
 
-// total user
-$totalUser = $conn->query("
-    SELECT COUNT(*) as total
-    FROM user
-")->fetch_assoc()['total'];
+$totalUser = $conn->query("SELECT COUNT(*) total FROM user")
+->fetch_assoc()['total'];
 
-// total obat
-$totalObat = $conn->query("
-    SELECT COUNT(*) as total
-    FROM obat
-")->fetch_assoc()['total'];
+$totalObat = $conn->query("SELECT COUNT(*) total FROM obat")
+->fetch_assoc()['total'];
 
-// total pesanan
-$totalPesanan = $conn->query("
-    SELECT COUNT(*) as total
-    FROM pesanan
-")->fetch_assoc()['total'];
+$totalPesanan = $conn->query("SELECT COUNT(*) total FROM pesanan")
+->fetch_assoc()['total'];
 
-// total pelanggan
-$totalPelanggan = $conn->query("
-    SELECT COUNT(*) as total
-    FROM user
-    WHERE role='pelanggan'
-")->fetch_assoc()['total'];
+$totalApoteker = $conn->query("SELECT COUNT(*) total FROM user WHERE role='apoteker'")
+->fetch_assoc()['total'];
 
 ?>
 
-<h1>👨‍💼 Dashboard Admin</h1>
+<div class="toolbar">
 
-<p
-    style="
-        margin-bottom:20px;
-        color:#64748b;
-    "
->
-    Selamat datang,
-    <?= htmlspecialchars($_SESSION['nama']) ?>
-</p>
+    <div>
+        <h1>👨‍💼 Dashboard Admin</h1>
+
+        <p style="color:#64748b">
+            Selamat datang,
+            <?= htmlspecialchars($_SESSION['nama']) ?>
+        </p>
+    </div>
+
+</div>
 
 <div class="stats">
 
     <div class="stat">
-
-        <div class="label">
-            👥 Total User
-        </div>
-
-        <div class="value">
-            <?= $totalUser ?>
-        </div>
-
+        <div class="label">👥 Total User</div>
+        <div class="value"><?= $totalUser ?></div>
     </div>
 
     <div class="stat">
-
-        <div class="label">
-            💊 Total Obat
-        </div>
-
-        <div class="value">
-            <?= $totalObat ?>
-        </div>
-
+        <div class="label">💊 Total Obat</div>
+        <div class="value"><?= $totalObat ?></div>
     </div>
 
     <div class="stat">
-
-        <div class="label">
-            📦 Total Pesanan
-        </div>
-
-        <div class="value">
-            <?= $totalPesanan ?>
-        </div>
-
+        <div class="label">📦 Total Pesanan</div>
+        <div class="value"><?= $totalPesanan ?></div>
     </div>
 
     <div class="stat">
-
-        <div class="label">
-            🧑 Pelanggan
-        </div>
-
-        <div class="value">
-            <?= $totalPelanggan ?>
-        </div>
-
+        <div class="label">🧑‍⚕️ Total Apoteker</div>
+        <div class="value"><?= $totalApoteker ?></div>
     </div>
 
 </div>
@@ -116,39 +80,21 @@ $totalPelanggan = $conn->query("
 
     </div>
 
-    <div
-        style="
-            display:flex;
-            gap:12px;
-            flex-wrap:wrap;
-        "
-    >
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
 
-        <a
-            href="users.php"
-            class="btn"
-        >
+        <a href="users.php" class="btn" style="padding:18px;text-align:center">
             👥 Kelola User
         </a>
 
-        <a
-            href="obat.php"
-            class="btn"
-        >
+        <a href="obat.php" class="btn" style="padding:18px;text-align:center">
             💊 Kelola Obat
         </a>
 
-        <a
-            href="pesanan.php"
-            class="btn"
-        >
+        <a href="pesanan.php" class="btn" style="padding:18px;text-align:center">
             📦 Kelola Pesanan
         </a>
 
-        <a
-            href="laporan.php"
-            class="btn"
-        >
+        <a href="laporan.php" class="btn" style="padding:18px;text-align:center">
             📊 Laporan
         </a>
 
@@ -158,21 +104,19 @@ $totalPelanggan = $conn->query("
 
 <div class="card">
 
-    <h2>📋 Pesanan Terbaru</h2>
+    <div class="toolbar">
+        <h2>📋 Pesanan Terbaru</h2>
+    </div>
 
     <table>
 
         <thead>
-
             <tr>
-
                 <th>ID</th>
                 <th>Pelanggan</th>
                 <th>Tanggal</th>
                 <th>Status</th>
-
             </tr>
-
         </thead>
 
         <tbody>
@@ -196,14 +140,9 @@ $totalPelanggan = $conn->query("
         ?>
 
         <tr>
-
-            <td
-                colspan="4"
-                style="text-align:center"
-            >
+            <td colspan="4" style="text-align:center">
                 Belum ada pesanan
             </td>
-
         </tr>
 
         <?php endif; ?>
@@ -212,26 +151,15 @@ $totalPelanggan = $conn->query("
 
         <tr>
 
-            <td>
-                #<?= $x['id_pesanan'] ?>
-            </td>
+            <td>#<?= $x['id_pesanan'] ?></td>
 
-            <td>
-                <?= htmlspecialchars($x['nama']) ?>
-            </td>
+            <td><?= htmlspecialchars($x['nama']) ?></td>
 
-            <td>
-                <?= $x['tanggal_pesanan'] ?>
-            </td>
+            <td><?= $x['tanggal_pesanan'] ?></td>
 
             <td>
 
-                <span
-                    class="badge <?= $x['status_pesanan']=='selesai'
-                        ? 'green'
-                        : 'yellow'
-                    ?>"
-                >
+                <span class="badge <?= $x['status_pesanan']=='selesai' ? 'green' : 'yellow' ?>">
                     <?= $x['status_pesanan'] ?>
                 </span>
 
@@ -247,73 +175,72 @@ $totalPelanggan = $conn->query("
 
 </div>
 
-<div class="card">
+<?php require_once __DIR__ . '/../includes/footer.php'; ?>
+```
 
-    <h2>📈 Aktivitas Sistem</h2>
+---
 
-    <table>
+## Tambahkan menu admin di includes/header.php
 
-        <thead>
+Cari bagian navbar admin lalu ganti menjadi:
 
-            <tr>
+```php
+<?php if($_SESSION['role']=='admin'): ?>
 
-                <th>Keterangan</th>
-                <th>Status</th>
+<a href="/admin/dashboard.php">Dashboard</a>
+<a href="/admin/users.php">User</a>
+<a href="/admin/obat.php">Obat</a>
+<a href="/admin/pesanan.php">Pesanan</a>
+<a href="/admin/laporan.php">Laporan</a>
 
-            </tr>
+<?php endif; ?>
+```
 
-        </thead>
+---
 
-        <tbody>
+## Tambahkan style modern di assets/css/style.css
 
-            <tr>
+Tambahkan paling bawah:
 
-                <td>
-                    Sistem Login
-                </td>
+```css
+.sidebar-card{
+background:#fff;
+border-radius:14px;
+padding:18px;
+box-shadow:0 2px 10px rgba(0,0,0,.05);
+}
 
-                <td>
-                    <span class="badge green">
-                        Aktif
-                    </span>
-                </td>
+.menu-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:16px;
+}
 
-            </tr>
+.menu-box{
+background:#0d9488;
+color:#fff;
+padding:22px;
+border-radius:14px;
+text-decoration:none;
+font-weight:600;
+transition:.2s;
+text-align:center;
+}
 
-            <tr>
+.menu-box:hover{
+transform:translateY(-3px);
+background:#0f766e;
+}
+```
 
-                <td>
-                    Database MySQL
-                </td>
+---
 
-                <td>
-                    <span class="badge green">
-                        Terhubung
-                    </span>
-                </td>
+## Git Push
 
-            </tr>
+```bash
+git add .
 
-            <tr>
+git commit -m "upgrade full admin ui"
 
-                <td>
-                    Server Railway
-                </td>
-
-                <td>
-                    <span class="badge green">
-                        Online
-                    </span>
-                </td>
-
-            </tr>
-
-        </tbody>
-
-    </table>
-
-</div>
-
-<?php
-require_once __DIR__ . '/../includes/footer.php';
-?>
+git push
+```
