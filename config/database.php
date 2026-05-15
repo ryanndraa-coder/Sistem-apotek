@@ -8,7 +8,7 @@ $user = getenv('MYSQLUSER');
 $pass = getenv('MYSQLPASSWORD');
 $port = getenv('MYSQLPORT');
 
-$db = "apotek";
+$db = getenv('MYSQLDATABASE');
 
 $conn = @new mysqli($host, $user, $pass, $db, $port);
 
