@@ -15,14 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $no_telp  = trim($_POST['no_telp']);
 
-    // role otomatis pelanggan
-    $role = 'pelanggan';
-
-    // cek email sudah ada atau belum
+    // cek email sudah terdaftar atau belum
     $check = $conn->prepare("
         SELECT id_user
         FROM user
-        WHERE email=?
+        WHERE email = ?
     ");
 
     $check->bind_param("s", $email);
@@ -36,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     } else {
 
+        // hash password
         $hashPassword = password_hash(
             $password,
             PASSWORD_BCRYPT
@@ -45,26 +43,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         try {
 
-            // insert ke tabel user
+            // insert user otomatis pelanggan
             $stmt = $conn->prepare("
                 INSERT INTO user
                 (nama, email, password, role)
-                VALUES (?, ?, ?, ?)
+                VALUES (?, ?, ?, 'pelanggan')
             ");
 
             $stmt->bind_param(
-                "ssss",
+                "sss",
                 $nama,
                 $email,
-                $hashPassword,
-                $role
+                $hashPassword
             );
 
             $stmt->execute();
 
             $id_user = $conn->insert_id;
 
-            // insert ke tabel pelanggan
+            // insert tabel pelanggan
             $pelanggan = $conn->prepare("
                 INSERT INTO pelanggan(id_user)
                 VALUES(?)
@@ -111,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
 
     <meta charset="UTF-8">
@@ -207,13 +205,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 >
 
             </div>
-
-            <!-- role otomatis pelanggan -->
-            <input
-                type="hidden"
-                name="role"
-                value="pelanggan"
-            >
 
             <div>
 
