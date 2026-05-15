@@ -6,8 +6,9 @@ ini_set('display_errors', 1);
 $host = getenv('MYSQLHOST');
 $user = getenv('MYSQLUSER');
 $pass = getenv('MYSQLPASSWORD');
-$db   = getenv('MYSQLDATABASE');
 $port = getenv('MYSQLPORT');
+
+$db = "apotek";
 
 $conn = @new mysqli($host, $user, $pass, $db, $port);
 

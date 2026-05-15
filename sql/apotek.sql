@@ -2,9 +2,6 @@
 -- Database: apotek
 -- Import via phpMyAdmin (Laragon)
 -- =====================================================
-DROP DATABASE IF EXISTS `apotek`;
-CREATE DATABASE `apotek` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE `apotek`;
 
 -- ---------- USER (parent / supertype) ----------
 CREATE TABLE `user` (
