@@ -1,16 +1,17 @@
 <?php
 
-$host = 'localhost';
-$user = 'root';
-$pass = 'root';
-$db   = 'apotek';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-// Koneksi database
-$conn = mysqli_connect($host, $user, $pass, $db);
+$host = getenv('MYSQLHOST');
+$user = getenv('MYSQLUSER');
+$pass = getenv('MYSQLPASSWORD');
+$db   = getenv('MYSQLDATABASE');
+$port = getenv('MYSQLPORT');
 
-// Cek koneksi
-if (!$conn) {
-    die("Koneksi database gagal: " . mysqli_connect_error());
+$conn = @new mysqli($host, $user, $pass, $db, $port);
+
+if ($conn->connect_error) {
+    die("Database Error: " . $conn->connect_error);
 }
-
 ?>
