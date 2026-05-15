@@ -42,62 +42,6 @@ require_once __DIR__ . '/../includes/header.php';
 
 </div>
 
-<div class="card">
-
-    <div class="toolbar">
-
-        <h2>Menu Cepat</h2>
-
-    </div>
-
-    <div
-        style="
-            display:grid;
-            grid-template-columns:
-            repeat(auto-fit,minmax(200px,1fr));
-            gap:16px;
-        "
-    >
-
-        <a
-            href="beli_obat.php"
-            class="btn"
-            style="
-                padding:20px;
-                text-align:center;
-                font-size:1rem;
-            "
-        >
-            🛒 Beli Obat
-        </a>
-
-        <a
-            href="#"
-            class="btn btn-secondary"
-            style="
-                padding:20px;
-                text-align:center;
-                font-size:1rem;
-            "
-        >
-            📦 Pesanan Saya
-        </a>
-
-        <a
-            href="#"
-            class="btn"
-            style="
-                padding:20px;
-                text-align:center;
-                font-size:1rem;
-            "
-        >
-            💬 Konsultasi
-        </a>
-
-    </div>
-
-</div>
 
 <div class="card">
 
