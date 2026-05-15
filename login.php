@@ -64,22 +64,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+<body>
 
-<h2>Login Sistem Apotek</h2>
+<div class="login-wrap">
 
-<?php if($error): ?>
-<p><?= $error ?></p>
-<?php endif; ?>
+    <div class="login-card">
 
-<form method="POST">
+        <h1>Login Sistem Apotek</h1>
 
-    <input type="email" name="email" placeholder="Email" required><br><br>
+        <p class="sub">
+            Silakan login untuk melanjutkan
+        </p>
 
-    <input type="password" name="password" placeholder="Password" required><br><br>
+        <?php if($error): ?>
+            <div class="alert error">
+                <?= $error ?>
+            </div>
+        <?php endif; ?>
 
-    <button type="submit">Login</button>
+        <form method="POST" class="form-stack">
 
-</form>
+            <div>
+                <label>Email</label>
+                <input type="email" name="email" required>
+            </div>
 
+            <div>
+                <label>Password</label>
+                <input type="password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn">
+                Login
+            </button>
+
+        </form>
+
+        <div class="demo">
+            <b>Demo Login</b>
+            admin@apotek.com <br>
+            password123
+        </div>
+
+    </div>
+
+</div>
+
+</body>
 </body>
 </html>
